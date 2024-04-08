@@ -1,0 +1,41 @@
+
+
+int main(int argc, char *argv[]){
+    // On affiche le menu 
+    // On demande à l'utilisateur de choisir une option parmis : 
+    // 1. Faire un scan du réseau
+    // 2. Faire un scan des ports d'une machine dont on nous donne l'info 
+
+    printf("Que voulez vous faire ?\nPour faire un scan du réseau, tapez 1\nPour faire un scan des ports d'une machine, tapez 2\n");
+
+    // On récupère le choix de l'utilisateur
+    int choix = 0;
+    scanf("%d", &choix);
+
+    // On appelle la fonction correspondante
+    if(choix == 1){
+        scanReseau(); // On affiche le résultat dans la fonction
+
+    }else if(choix == 2){
+        printf("Entrez l'adresse IP de la machine à scanner au format: xxx.xxx.xxx.xxx \n");
+        char ip[16];
+        scanf("%s", ip);
+        scanPorts(ip); // On affiche le résultat dans la fonction
+    }else{
+        printf("Choix invalide\n");
+    }
+
+    // On demande à l'utilisateur s'il veut continuer
+    printf("Voulez vous continuer ?\nPour continuer, tapez 1\nPour quitter, tapez 2\n");
+
+    // Si oui, on recommence
+    int continuer = 0;
+    scanf("%d", &continuer);
+    if(continuer == 1){
+        main(argc, argv);
+    }
+    // Si non, on quitte
+    else{
+        return 0;
+    }
+}
