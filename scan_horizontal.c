@@ -5,11 +5,12 @@
 #include <string.h>
 #include <sys/time.h>
 #include <unistd.h>
+#include <stdlib.h>
 
 #define TEST "1234567890"
 #define TEST_LEN 11
 #define MTU 1500
-#define RECV_TIMEOUT 100
+#define RECV_TIMEOUT 1000
 
 // Structure d'un paquet ICMP
 struct icmp_echo {
@@ -136,9 +137,15 @@ int recv_echo_reply(int sock, int ident)
     return 0;
 }
 
-// Fonction principale qui imite la commande ping
-int ping(const char *ip)
+// Fonction principale qui imite la commande ping, prend une adresse IP et un nombre maximal de requêtes
+int ping(const char *ip, int max_requests)
 {
+    // Vérification du nombre maximal de requêtes
+    if (max_requests <= 0) {
+        printf("Nombre maximal de requêtes invalide\n");
+        return -1;
+    }
+
     // On crée une structure sockaddr_in pour stocker l'adresse IP
     struct sockaddr_in addr;
     bzero(&addr, sizeof(addr));
@@ -168,11 +175,13 @@ int ping(const char *ip)
         return -1;
     }
 
+    int requests_sent = 0;
     double next_ts = get_timestamp();
     int ident = getpid();
     int seq = 1;
+    int succes = 0;
 
-    for (;;) {
+    while (requests_sent < max_requests) {
         // On envoie un paquet ICMP toutes les secondes
         if (get_timestamp() >= next_ts) {
             // On envoie un paquet ICMP
@@ -184,20 +193,63 @@ int ping(const char *ip)
             // On met à jour le timestamp et la séquence
             next_ts += 1;
             seq += 1;
+            requests_sent++;
         }
 
-        // On test si on a reçu les paquets ICMP de type ECHO_REPLY
-        ret = recv_echo_reply(sock, ident);
-        if (ret == -1) {
-            perror("La réception a échoué\n");
+        // Utilisation de select pour attendre soit une réponse, soit un timeout
+        fd_set readfds;
+        FD_ZERO(&readfds);
+        FD_SET(sock, &readfds);
+
+        struct timeval tv;
+        tv.tv_sec = 1;
+        tv.tv_usec = 0;
+
+        int retval = select(sock + 1, &readfds, NULL, NULL, &tv);
+        if (retval == -1) {
+            perror("select()");
+            return -1;
+        } else if (retval) {
+            // Si le socket est prêt à lire, il y a une réponse
+            ret = recv_echo_reply(sock, ident);
+            if (ret == -1) {
+                perror("La réception a échoué\n");
+            }
+            else {
+                succes = 1;
+            }
         }
+     
+        // Réinitialiser la temporisation avant la prochaine itération
+        tv.tv_sec = 1;
+        tv.tv_usec = 0;
     }
-    printf("ping\n");
-    return 0;
+    
+    return succes;
 }
 
 int main(int argc, const char* argv[])
 {
-    printf("%i",ping(argv[1]));
-    return ping(argv[1]);
+    // Vérification du nombre d'arguments
+    if (argc != 3) {
+        printf("Usage: %s <IP address> <max_requests>\n", argv[0]);
+        return -1;
+    }
+
+    // Conversion de la chaîne de caractères en entier
+    int max_requests = atoi(argv[2]);
+    printf("max_requests = %d\n", max_requests);
+
+    // Appel de la fonction ping avec l'adresse IP et le nombre maximal de requêtes
+    int up = ping(argv[1], max_requests);
+    if (up == 0) {
+        printf("Hôte injoignable\n");
+    }
+    else if (up == -1) {
+        printf("Erreur lors du ping\n");
+    }
+    else {
+        printf("Hôte joignable\n");
+    }
+    
 }
