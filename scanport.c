@@ -4,7 +4,6 @@
 #include <unistd.h>
 #include <arpa/inet.h>
 #include <sys/socket.h>
-#include <netinet/ip_icmp.h>
 
 
 // scan d'un port 
@@ -51,20 +50,5 @@ void scan_ports(const char *ip, int start, int end) {
     for (int port = start; port <= end; port++) {
         scan(ip, port);
     }
-}
-
-// Fonction qui scan plusieurs à la demande de l'utilisateur
-void scan_ports_user(const char *ip) {
-    // On demande à l'utilisateur de rentrer le port de début
-    printf("Port de début: ");
-    int start;
-    scanf("%d", &start);
-
-    // On demande à l'utilisateur de rentrer le port de fin
-    printf("Port de fin: ");
-    int end;
-    scanf("%d", &end);
-
-    // On scanne les ports de start à end
-    scan_ports(ip, start, end);
+    printf("Scan terminé\n");
 }

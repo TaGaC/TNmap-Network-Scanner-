@@ -13,8 +13,8 @@ clientTCP : clientTCP.o
 clientTCP.o : clientTCP.c
 	@${CLNO} clientTCP.c
 
-gestionnaire : gestionnaire.o scan_horizontal.o
-	@${CLN} gestionnaire.o scan_horizontal.o -o gestionnaire -lpthread
+gestionnaire : gestionnaire.o scan_horizontal.o scanport.o
+	@${CLN} gestionnaire.o scan_horizontal.o scanport.o -o gestionnaire -lpthread
 
 gestionnaire.o : gestionnaire.c
 	@${CLNO} gestionnaire.c

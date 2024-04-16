@@ -4,6 +4,7 @@
 #include <unistd.h>
 
 #include "scan_horizontal.h"
+#include "scanport.h"
 
 
 
@@ -17,8 +18,6 @@ void scanReseau(const char *ip){
     // On récupère le masque
     int masque = atoi(plage);
     // On lance ping sur chaque ip
-
-
 
 }
 
@@ -56,7 +55,27 @@ int main(int argc, char *argv[]){
         printf("Entrez l'adresse IP de la machine à scanner au format: xxx.xxx.xxx.xxx \n");
         char ip[16];
         scanf("%s", ip);
-        //scanPorts(ip); // On affiche le résultat dans la fonction
+        int choix2 = 0;
+        printf("Voulez vous scanner un port ou une plage de ports ?\nPour scanner un port, tapez 1\nPour scanner une plage de ports que vous choississez, tapez 2\nPour scanner une plage de ports de 1 à 1024, tapez 3\n");
+        scanf("%d", &choix2);
+        if(choix2 == 1){
+            printf("Entrez le port à scanner\n");
+            int port;
+            scanf("%d", &port);
+            scan(ip, port);
+        }else if(choix2 == 2){
+            printf("Entrez le port de début\n");
+            int debut;
+            scanf("%d", &debut);
+            printf("Entrez le port de fin\n");
+            int fin;
+            scanf("%d", &fin);
+            scan_ports(ip, debut, fin);
+        }else if(choix2 == 3){
+            scan_ports(ip, 1, 1024);
+        }else{
+            printf("Choix invalide\n");
+        }
     }else{
         printf("Choix invalide\n");
     }
