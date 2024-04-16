@@ -8,17 +8,44 @@
 #include <stdlib.h>
 #include <sys/types.h>
 #include <sys/socket.h>
-
+#include <arpa/inet.h>
+#include <netinet/in.h>
+#include <signal.h>
+#include <termios.h>
 
 
 #define TEST "1234567890"
 #define TEST_LEN 11
 #define MTU 1500
-#define RECV_TIMEOUT 1000
+#define RECV_TIMEOUT 100
+
+
+
+
+volatile sig_atomic_t stop = 0;
+
+void sigint_handler(int signal) {
+    stop = 1;
+}
+
+void print_progress_bar(int progress, int total) {
+    int bar_width = 50;
+    int completed = (double)progress / total * bar_width;
+    int remaining = bar_width - completed;
+
+    printf("\r[");
+    for (int i = 0; i < completed; i++) {
+        printf("#");
+    }
+    for (int i = 0; i < remaining; i++) {
+        printf(" ");
+    }
+    printf("] %d/%d (%3.0f%%)", progress, total, (double)progress / total * 100);
+    fflush(stdout);
+}
 
 // Structure d'un paquet ICMP
 struct icmp_echo {
-
     uint8_t type;
     uint8_t code;
     uint16_t checksum;
@@ -61,10 +88,8 @@ uint16_t calculate_checksum(unsigned char* buffer, int bytes)
         checksum = (checksum & 0xffff) + carray;
         carray = checksum >> 16;
     }
-
     // On prend le complément à 1 du résultat
     checksum = ~checksum;
-
     return checksum & 0xffff; // On ne garde que les 16 bits de poids faible
 }
 
@@ -74,13 +99,11 @@ int send_echo_request(int sock, struct sockaddr_in* addr, int ident, int seq)
     // On crée un paquet ICMP
     struct icmp_echo icmp;
     bzero(&icmp, sizeof(icmp));
-
     // On remplit les champs du paquet
     icmp.type = 8; // Type de paquet ICMP Echo Request
     icmp.code = 0; // Code 0 pour un paquet ECHO
     icmp.ident = htons(ident); // Htons permet de convertir un entier court
     icmp.seq = htons(seq);
-
     // On remplit le champ test avec une chaîne de caractères
     strncpy(icmp.test, TEST, TEST_LEN);
 
@@ -225,36 +248,73 @@ int ping(const char *ip, int max_requests)
         }
      
         // Réinitialiser la temporisation avant la prochaine itération
-        tv.tv_sec = 1;
+        tv.tv_sec = 0.2;
         tv.tv_usec = 0;
+        close(sock);
     }
     
     return succes;
 }
 
+// Fonction qui scanne un réseau en utilisant la commande ping
+void scan_reseau(const char *ip_reseau) {
+    char *ip_copie = strdup(ip_reseau);
+    char *ip_str = strtok(ip_copie, "/");
+    char *slash = strtok(NULL, "/");
 
-// int main(int argc, const char* argv[])
-// {
-//     // Vérification du nombre d'arguments
-//     if (argc != 3) {
-//         printf("Usage: %s <IP address> <max_requests>\n", argv[0]);
-//         return -1;
-//     }
+    if (!ip_str || !slash) {
+        printf("Format d'IP incorrect\n");
+        return;
+    }
 
-//     // Conversion de la chaîne de caractères en entier
-//     int max_requests = atoi(argv[2]);
-//     printf("max_requests = %d\n", max_requests);
+    int masque = atoi(slash);
 
-//     // Appel de la fonction ping avec l'adresse IP et le nombre maximal de requêtes
-//     int up = ping(argv[1], max_requests);
-//     if (up == 0) {
-//         printf("Hôte injoignable\n");
-//     }
-//     else if (up == -1) {
-//         printf("Erreur lors du ping\n");
-//     }
-//     else {
-//         printf("Hôte joignable\n");
-//     }
-    
-// }
+    if (masque < 1 || masque > 32) {
+        printf("Masque de sous-réseau invalide\n");
+        return;
+    }
+
+    struct sockaddr_in addr;
+    if (inet_aton(ip_str, &(addr.sin_addr)) == 0) {
+        printf("Adresse Invalide\n");
+        return;
+    }
+
+    // Calcul de l'adresse de réseau et de l'adresse de diffusion
+    uint32_t ip_net = ntohl(addr.sin_addr.s_addr) & (~((1 << (32 - masque)) - 1));
+    uint32_t broadcast = ip_net | ((1 << (32 - masque)) - 1);
+
+    int total = broadcast - ip_net - 1;
+    int progress = 0;
+
+    struct termios old_terminal, new_terminal;
+    tcgetattr(STDIN_FILENO, &old_terminal);
+    new_terminal = old_terminal;
+    new_terminal.c_lflag &= ~(ICANON | ECHO);
+    tcsetattr(STDIN_FILENO, TCSANOW, &new_terminal);
+
+    signal(SIGINT, sigint_handler);
+
+    // Boucle sur toutes les adresses IP du réseau
+    for (uint32_t ip = ip_net + 1; ip < broadcast && !stop; ip++) {
+        struct in_addr ip_addr;
+        ip_addr.s_addr = htonl(ip);
+        char *ip_str = inet_ntoa(ip_addr);
+
+        int succes = ping(ip_str, 1);
+        if (succes) {
+            printf("\nIP %s est active\n", ip_str);
+        }
+
+        progress++;
+        print_progress_bar(progress, total);
+    }
+
+    tcsetattr(STDIN_FILENO, TCSANOW, &old_terminal);
+
+    if (stop) {
+        printf("\nScan interrompu par l'utilisateur\n");
+    } else {
+        printf("\nScan terminé\n");
+    }
+}
