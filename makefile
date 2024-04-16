@@ -13,17 +13,14 @@ clientTCP : clientTCP.o
 clientTCP.o : clientTCP.c
 	@${CLNO} clientTCP.c
 
-gestionnaire : gestionnaire.o
-	@${CLN} gestionnaire.o -o gestionnaire -lpthread
+gestionnaire : gestionnaire.o scan_horizontal.o
+	@${CLN} gestionnaire.o scan_horizontal.o -o gestionnaire -lpthread
 
 gestionnaire.o : gestionnaire.c
 	@${CLNO} gestionnaire.c
 
-scanner_horizontal : scanner_horizontal.o
-	@${CLN} scanner_horizontal.o -o scanner_horizontal
-
-scanner_horizontal.o : scanner_horizontal.c
-	@${CLNO} scanner_horizontal.c
+scan_horizontal.o : scan_horizontal.c
+	@${CLNO} scan_horizontal.c
 
 scanport : scanport.o
 	@${CLN} scanport.o -o scanport
@@ -31,7 +28,7 @@ scanport : scanport.o
 scanport.o : scanport.c
 	@${CLNO} scanport.c
 
-all : serveurTCP clientTCP gestionnaire scanner_horizontal
+all : serveurTCP clientTCP gestionnaire
 
 TCP : serveurTCP clientTCP
 
@@ -39,4 +36,4 @@ clean :
 	@rm -f *.o
 
 clean_exe :
-	@rm -f serveurTCP clientTCP gestionnaire scanner_horizontal scanport scan
+	@rm -f serveurTCP clientTCP gestionnaire scanport scan

@@ -6,6 +6,10 @@
 #include <sys/time.h>
 #include <unistd.h>
 #include <stdlib.h>
+#include <sys/types.h>
+#include <sys/socket.h>
+
+
 
 #define TEST "1234567890"
 #define TEST_LEN 11
@@ -228,28 +232,29 @@ int ping(const char *ip, int max_requests)
     return succes;
 }
 
-int main(int argc, const char* argv[])
-{
-    // Vérification du nombre d'arguments
-    if (argc != 3) {
-        printf("Usage: %s <IP address> <max_requests>\n", argv[0]);
-        return -1;
-    }
 
-    // Conversion de la chaîne de caractères en entier
-    int max_requests = atoi(argv[2]);
-    printf("max_requests = %d\n", max_requests);
+// int main(int argc, const char* argv[])
+// {
+//     // Vérification du nombre d'arguments
+//     if (argc != 3) {
+//         printf("Usage: %s <IP address> <max_requests>\n", argv[0]);
+//         return -1;
+//     }
 
-    // Appel de la fonction ping avec l'adresse IP et le nombre maximal de requêtes
-    int up = ping(argv[1], max_requests);
-    if (up == 0) {
-        printf("Hôte injoignable\n");
-    }
-    else if (up == -1) {
-        printf("Erreur lors du ping\n");
-    }
-    else {
-        printf("Hôte joignable\n");
-    }
+//     // Conversion de la chaîne de caractères en entier
+//     int max_requests = atoi(argv[2]);
+//     printf("max_requests = %d\n", max_requests);
+
+//     // Appel de la fonction ping avec l'adresse IP et le nombre maximal de requêtes
+//     int up = ping(argv[1], max_requests);
+//     if (up == 0) {
+//         printf("Hôte injoignable\n");
+//     }
+//     else if (up == -1) {
+//         printf("Erreur lors du ping\n");
+//     }
+//     else {
+//         printf("Hôte joignable\n");
+//     }
     
-}
+// }

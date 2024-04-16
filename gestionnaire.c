@@ -1,3 +1,28 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
+
+#include "scan_horizontal.h"
+
+
+
+// Fonction qui permet de scanner le réseau
+void scanReseau(const char *ip){
+    // On sépare l'ip de la plage
+    char *ip_copie = strdup(ip);
+    char *ip_reseau = strtok(ip_copie, "/");
+    char *plage = strtok(NULL, "/");
+
+    // On récupère le masque
+    int masque = atoi(plage);
+    // On lance ping sur chaque ip
+
+
+
+}
+
+
 
 
 int main(int argc, char *argv[]){
@@ -14,13 +39,24 @@ int main(int argc, char *argv[]){
 
     // On appelle la fonction correspondante
     if(choix == 1){
-        scanReseau(); // On affiche le résultat dans la fonction
+        printf("Scan du réseau\n");
+        printf("Entrez l'adresse IP du réseaux à scanner: xxx.xxx.xxx.xxx/n \n");
+        char reseau[16];
+        scanf("%s", reseau);
+        int result = ping(reseau, 10);
+        if (result == -1) {
+            printf("Erreur lors du ping\n");
+        } else if (result == 0) {
+            printf("Hôte injoignable\n");
+        } else {
+            printf("Hôte joignable\n");
+        }
 
     }else if(choix == 2){
         printf("Entrez l'adresse IP de la machine à scanner au format: xxx.xxx.xxx.xxx \n");
         char ip[16];
         scanf("%s", ip);
-        scanPorts(ip); // On affiche le résultat dans la fonction
+        //scanPorts(ip); // On affiche le résultat dans la fonction
     }else{
         printf("Choix invalide\n");
     }
