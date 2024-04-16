@@ -25,6 +25,12 @@ scanner_horizontal : scanner_horizontal.o
 scanner_horizontal.o : scanner_horizontal.c
 	@${CLNO} scanner_horizontal.c
 
+scanport : scanport.o
+	@${CLN} scanport.o -o scanport
+
+scanport.o : scanport.c
+	@${CLNO} scanport.c
+
 all : serveurTCP clientTCP gestionnaire scanner_horizontal
 
 TCP : serveurTCP clientTCP
@@ -33,4 +39,4 @@ clean :
 	@rm -f *.o
 
 clean_exe :
-	@rm -f serveurTCP clientTCP gestionnaire scanner_horizontal
+	@rm -f serveurTCP clientTCP gestionnaire scanner_horizontal scanport scan
