@@ -5,7 +5,7 @@
 #include <arpa/inet.h>
 #include <sys/socket.h>
 
-
+// Balayage d'un port avec la méthode TCP connect 
 // scan d'un port 
 void scan (const char *ip, int port) {
 
