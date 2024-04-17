@@ -1,0 +1,10 @@
+Finir améliorer affichage
+
+Gerer la connexion tcp, pour se connecter à un serveur qui va lancer TNmap (voir si c'est ca qu'il faut faire)
+
+Renommer le gestionnaire TNmap
+
+Faire la documentation pour utiliser le gestionnaire TNmap
+
+Corriger les erreurs en rouge de vs code
+
