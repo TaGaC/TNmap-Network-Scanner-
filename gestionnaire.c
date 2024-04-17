@@ -8,13 +8,14 @@
 
 void afficher_menu() {
     printf("\nQue voulez-vous faire ?\n");
-    printf("1. Ping une adresse IP\n");
-    printf("2. Scanner toutes les adresses IP d'un réseau\n");
-    printf("3. Faire un scan des ports d'une machine\n");
-    printf("4. Quitter\n");
+    printf("    1. Ping une adresse IP\n");
+    printf("    2. Scanner toutes les adresses IP d'un réseau\n");
+    printf("    3. Faire un scan des ports d'une machine\n");
+    printf("    4. Quitter\n");
 }
 
 int main() {
+    printf("\n\n        Bienvenue dans Tnmap !\n");
     int choix = 0;
 
     while (choix != 4) {
@@ -23,31 +24,35 @@ int main() {
 
         switch (choix) {
             case 1: {
-                printf("Entrez l'adresse IP à ping (format : xxx.xxx.xxx.xxx) :\n");
+                printf("    Entrez l'adresse IP à ping (format : xxx.xxx.xxx.xxx) :\n\n");
                 char ip[16];
                 scanf("%15s", ip);
-                int result = ping(ip, 1);
+                printf("\n   Ping en cours de l'adresse %s ...\n", ip);
+               
+                int result = ping(ip, 5);
                 if (result == -1) {
-                    printf("Erreur lors du ping\n");
+                    printf("\n  Erreur lors du ping\n");
                 } else if (result == 0) {
-                    printf("Hôte injoignable\n");
+                    printf("\n  Hôte injoignable\n");
                 } else {
-                    printf("Hôte joignable\n");
+                    printf("\n  Hôte joignable\n");
                 }
                 break;
             }
             case 2: {
-                printf("Entrez l'adresse IP du réseau à scanner (format : xxx.xxx.xxx.xxx/n) :\n");
+                printf("    Entrez l'adresse IP du réseau à scanner ainsi que son masque (format : xxx.xxx.xxx.xxx/n) :\n");
                 char reseau[16];
                 scanf("%15s", reseau);
+                printf("\n");
                 scan_reseau(reseau);
                 break;
             }
             case 3: {
-                printf("Entrez l'adresse IP de la machine à scanner (format : xxx.xxx.xxx.xxx) :\n");
+                printf("    Entrez l'adresse IP de la machine à scanner (format : xxx.xxx.xxx.xxx) :\n");
                 char ip[16];
                 scanf("%15s", ip);
                 int choix2 = 0;
+                printf("\n");
                 printf("\nVoulez-vous scanner :\n");
                 printf("1. Un port\n");
                 printf("2. Une plage de ports que vous choisissez\n");
@@ -55,15 +60,15 @@ int main() {
                 scanf("%d", &choix2);
 
                 if (choix2 == 1) {
-                    printf("Entrez le port à scanner :\n");
+                    printf("    Entrez le port à scanner :\n");
                     int port;
                     scanf("%d", &port);
                     scan(ip, port);
                 } else if (choix2 == 2) {
-                    printf("Entrez le port de début :\n");
+                    printf("    Entrez le port de début :\n");
                     int debut;
                     scanf("%d", &debut);
-                    printf("Entrez le port de fin :\n");
+                    printf("    Entrez le port de fin :\n");
                     int fin;
                     scanf("%d", &fin);
                     scan_ports(ip, debut, fin);
@@ -75,7 +80,7 @@ int main() {
                 break;
             }
             case 4: {
-                printf("Au revoir !\n");
+                printf("\n  Fermeture de Tnmap !\n");
                 break;
             }
             default: {
