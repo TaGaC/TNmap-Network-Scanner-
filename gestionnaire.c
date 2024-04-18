@@ -41,8 +41,8 @@ int main() {
             }
             case 2: {
                 printf("    Entrez l'adresse IP du réseau à scanner ainsi que son masque (format : xxx.xxx.xxx.xxx/n) :\n");
-                char reseau[16];
-                scanf("%15s", reseau);
+                char reseau[32];
+                scanf("%31s", reseau);
                 printf("\n");
                 scan_reseau(reseau);
                 break;
@@ -52,18 +52,29 @@ int main() {
                 char ip[16];
                 scanf("%15s", ip);
                 int choix2 = 0;
+                if (ping(ip, 1) == 0) {
+                    printf("    %s injoignable\n", ip);
+                    break;
+                }
+                else {
+                    printf("    %s joignable\n", ip);
+                }
+
                 printf("\n");
                 printf("\nVoulez-vous scanner :\n");
-                printf("1. Un port\n");
-                printf("2. Une plage de ports que vous choisissez\n");
-                printf("3. Une plage de ports de 1 à 1024\n");
+                printf("    1. Un port\n");
+                printf("    2. Une plage de ports que vous choisissez\n");
+                printf("    3. Une plage de ports de 1 à 1024\n");
                 scanf("%d", &choix2);
 
                 if (choix2 == 1) {
                     printf("    Entrez le port à scanner :\n");
                     int port;
                     scanf("%d", &port);
-                    scan(ip, port);
+                    if (scan(ip, port)==0) {
+                        printf("    Port %d fermé\n", port);
+                    }
+                    printf("\n");
                 } else if (choix2 == 2) {
                     printf("    Entrez le port de début :\n");
                     int debut;
