@@ -1,4 +1,6 @@
-# Projet : conception d’un scanner réseau simple 
+## Projet : conception d’un scanner réseau simple 
+
+# Travail à réaliser
 
 En partant du couple client-serveur TCP du TP, développer un scanner réseau simple configurable
 à distance via un gestionnaire :
@@ -19,3 +21,8 @@ Ceux qui avancent vite peuvent implanter plusieurs techniques de balayage de por
 
 https://nmap.org/docs.html   
 https://nmap.org/man/fr/man-port-scanning-techniques.html
+
+# Notre scanner
+
+Nous avons réalisé un scanner répondant aux attentes du sujet. 
+Afin d'utiliser notre scanner TNmap il faut lancer la commande : $sudo ./TNmap
