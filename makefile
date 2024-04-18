@@ -1,39 +1,39 @@
-CLN = clang -Wall -Wextra -pedantic -O0 -g3 -fsanitize=address -fno-omit-frame-pointer -fno-optimize-sibling-calls
-CLNO = clang -c -Wall -Wextra -pedantic -O0 -g3 -fsanitize=address -fno-omit-frame-pointer -fno-optimize-sibling-calls
+CC = clang
+CFLAGS = -Wall -Wextra -pedantic -O0 -g3 -fsanitize=address -fno-omit-frame-pointer -fno-optimize-sibling-calls
+LDFLAGS = -lpthread
 
-serveurTCP : serveurTCP.o
-	@${CLN} serveurTCP.o -o serveurTCP -lpthread
+.PHONY: all clean clean_exe tnmap_client tnmap_serveur tnmap_all
 
-serveurTCP.o : serveurTCP.c
-	@${CLNO} serveurTCP.c
+tnmap_client: TNmap_client
 
-clientTCP : clientTCP.o
-	@${CLN} clientTCP.o -o clientTCP -lpthread
+tnmap_serveur: TNmap_serveur
 
-clientTCP.o : clientTCP.c
-	@${CLNO} clientTCP.c
+tnmap_all: TNmap_client TNmap_serveur
 
-gestionnaire : gestionnaire.o scan_horizontal.o scanport.o
-	@${CLN} gestionnaire.o scan_horizontal.o scanport.o -o gestionnaire -lpthread
+TNmap_serveur: serveurTCP
 
-gestionnaire.o : gestionnaire.c
-	@${CLNO} gestionnaire.c
+TNmap_client: clientTCP
 
-scan_horizontal.o : scan_horizontal.c
-	@${CLNO} scan_horizontal.c
+serveurTCP: serveurTCP.o scan_horizontal.o scanport.o
+	$(CC) $(CFLAGS) $^ -o $@ $(LDFLAGS)
 
-scanport : scanport.o
-	@${CLN} scanport.o -o scanport
+clientTCP: clientTCP.o
+	$(CC) $(CFLAGS) $^ -o $@ $(LDFLAGS)
 
-scanport.o : scanport.c
-	@${CLNO} scanport.c
+serveurTCP.o: serveurTCP.c
+	$(CC) -c $(CFLAGS) $^
 
-all : serveurTCP clientTCP gestionnaire
+clientTCP.o: clientTCP.c
+	$(CC) -c $(CFLAGS) $^
 
-TCP : serveurTCP clientTCP
+scan_horizontal.o: scan_horizontal.c
+	$(CC) -c $(CFLAGS) $^
 
-clean :
-	@rm -f *.o
+scanport.o: scanport.c
+	$(CC) -c $(CFLAGS) $^
 
-clean_exe :
-	@rm -f serveurTCP clientTCP gestionnaire scanport scan
+clean:
+	rm -f *.o
+
+clean_exe:
+	rm -f serveurTCP clientTCP scanport gestionnaire scan

@@ -14,6 +14,7 @@
 #include <termios.h>
 #include <time.h>
 
+#include "scan_horizontal.h"
 
 
 #define TEST "1234567890"
@@ -266,27 +267,27 @@ int ping(const char *ip, int max_requests)
 
 
 // Fonction qui scanne un réseau en utilisant la commande ping
-void scan_reseau(const char *ip_reseau) {
+IPAddress* scan_reseau(const char *ip_reseau, int *nb_hotes) {
     char *ip_copie = strdup(ip_reseau);
     char *ip_str = strtok(ip_copie, "/");
     char *slash = strtok(NULL, "/");
 
     if (!ip_str || !slash) {
         printf("Format d'IP incorrect\n");
-        return;
+        return NULL;
     }
 
     int masque = atoi(slash);
 
     if (masque < 1 || masque > 32) {
         printf("Masque de sous-réseau invalide\n");
-        return;
+        return NULL;
     }
 
     struct sockaddr_in addr;
     if (inet_aton(ip_str, &(addr.sin_addr)) == 0) {
         printf("Adresse Invalide\n");
-        return;
+        return NULL;
     }
 
    
@@ -299,7 +300,17 @@ void scan_reseau(const char *ip_reseau) {
 
     //Print du réseau et du masque
     printf("\nLancement du scan sur le réseau : %s de  masque : %d\n\n[1/%i]             ", ip_str, masque, total);
-    int nb_hotes = 0;
+    *nb_hotes = 0;
+
+    // Allouer de l'espace pour le tableau dynamique d'adresses IP
+    IPAddress* ip_list = malloc(total * sizeof(IPAddress));
+    if (ip_list == NULL) {
+        printf("Erreur lors de l'allocation de la mémoire\n");
+        return NULL;
+    }
+
+    int index = 0;
+
     // Boucle sur toutes les adresses IP du réseau
     for (uint32_t ip = ip_net + 1; ip < broadcast; ip++) {
         struct in_addr ip_addr;
@@ -307,13 +318,19 @@ void scan_reseau(const char *ip_reseau) {
         char *ip_str = inet_ntoa(ip_addr);
         int succes = ping(ip_str, 1);
         if (succes >= 1) {
-            nb_hotes++;
+            // Ajouter l'adresse IP au tableau
+            strcpy(ip_list[index].ip, ip_str);
+            index++;
         }
 
         progress++;
         print_progress_bar(progress, total);
     }
 
-    printf("\n\n    Scan terminé, %i hôtes connectés sur le réseau %s\n", nb_hotes, ip_reseau);
-}
+    *nb_hotes = index; // Mettre à jour le nombre total d'hôtes connectés
 
+    printf("\n\n    Scan terminé, %i hôtes connectés sur le réseau %s\n", *nb_hotes, ip_reseau);
+
+    // Retourner le tableau d'adresses IP
+    return ip_list;
+}

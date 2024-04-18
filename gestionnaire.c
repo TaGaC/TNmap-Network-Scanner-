@@ -1,3 +1,5 @@
+//Ancienne version du gestionnaire avant de l'ajout de la connexion TCP
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

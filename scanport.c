@@ -5,6 +5,8 @@
 #include <arpa/inet.h>
 #include <sys/socket.h>
 
+#include "scanport.h"
+
 void print_progress_bar_port(int progress, int total) {
     const int width = 17; // largeur totale de la chaîne affichée
     int len = snprintf(NULL, 0, "%d/%d", progress, total); // longueur de la chaîne sans les espaces
@@ -55,17 +57,34 @@ int scan (const char *ip, int port) {
 }
 
 // Fonction qui scan plusieurs ports 
-void scan_ports(const char *ip, int start, int end) {
+PortInfo* scan_ports(const char *ip, int start, int end, int *nb_ports_ouverts) {
     // On vérifie que le port de début est inférieur au port de fin
     if (start > end) {
         printf("    Port de début supérieur au port de fin\n");
-        return;
+        return NULL;
+    }
+
+    // Allouer de l'espace pour le tableau dynamique des ports ouverts
+    PortInfo* ports_ouverts = malloc((end - start + 1) * sizeof(PortInfo));
+    if (ports_ouverts == NULL) {
+        printf("Erreur lors de l'allocation de mémoire\n");
+        return NULL;
     }
 
     // On scanne les ports de start à end
+    int index = 0;
     for (int port = start; port <= end; port++) {
         print_progress_bar_port(port, end);
-        scan(ip, port);
+        if (scan(ip, port) == 1) {
+            // Si le port est ouvert, l'ajouter au tableau des ports ouverts
+            ports_ouverts[index++].port = port;
+        }
     }
     printf("Scan terminé\n");
+
+    // Mettre à jour le nombre de ports ouverts
+    *nb_ports_ouverts = index;
+
+    // Retourner le tableau des ports ouverts
+    return ports_ouverts;
 }
