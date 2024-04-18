@@ -10,20 +10,16 @@ tnmap_serveur: TNmap_serveur
 
 tnmap_all: TNmap_client TNmap_serveur
 
-TNmap_serveur: serveurTCP
-
-TNmap_client: clientTCP
-
-serveurTCP: serveurTCP.o scan_horizontal.o scanport.o
+TNmap_serveur: TNmap_serveur.o scan_horizontal.o scanport.o
 	$(CC) $(CFLAGS) $^ -o $@ $(LDFLAGS)
 
-clientTCP: clientTCP.o
+TNmap_client: TNmap_client.o
 	$(CC) $(CFLAGS) $^ -o $@ $(LDFLAGS)
 
-serveurTCP.o: serveurTCP.c
+TNmap_serveur.o: TNmap_serveur.c
 	$(CC) -c $(CFLAGS) $^
 
-clientTCP.o: clientTCP.c
+TNmap_client.o: TNmap_client.c
 	$(CC) -c $(CFLAGS) $^
 
 scan_horizontal.o: scan_horizontal.c
@@ -36,4 +32,4 @@ clean:
 	rm -f *.o
 
 clean_exe:
-	rm -f serveurTCP clientTCP scanport gestionnaire scan
+	rm -f TNmap_serveur TNmap_client scanport gestionnaire scan
